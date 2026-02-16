@@ -17,7 +17,7 @@ class BackgroundTaskHelper {
     }
 
     func registerBackgroundTask() {
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: "io.entire.hadge.bg-fetch", using: nil) { task in
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: AppIdentifiers.backgroundFetchTask, using: nil) { task in
             guard let processingTask = task as? BGProcessingTask else {
                 return
             }
@@ -27,7 +27,7 @@ class BackgroundTaskHelper {
     }
 
     func scheduleBackgroundFetchTask() {
-        let request = BGProcessingTaskRequest(identifier: "io.entire.hadge.bg-fetch")
+        let request = BGProcessingTaskRequest(identifier: AppIdentifiers.backgroundFetchTask)
         request.requiresNetworkConnectivity = true
         request.requiresExternalPower = false
         request.earliestBeginDate = Date(timeIntervalSinceNow: 3600)

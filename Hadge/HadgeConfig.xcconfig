@@ -3,9 +3,10 @@
 
 #include "Secrets.xcconfig"
 
-DEVELOPMENT_TEAM = Q25LVLEHFB
+// Set these in ../DeveloperSettings.xcconfig for local signing.
+DEVELOPMENT_TEAM =
 CODE_SIGN_IDENTITY = Apple Development
 CODE_SIGN_STYLE = Automatic
-ORGANIZATION_IDENTIFIER = io.entire
+ORGANIZATION_IDENTIFIER = com.example
 
 #include? "../DeveloperSettings.xcconfig"

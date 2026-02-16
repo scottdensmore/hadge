@@ -1,5 +1,11 @@
 #!/bin/bash
 
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEVELOPER_SETTINGS_PATH="${SCRIPT_DIR}/DeveloperSettings.xcconfig"
+SECRETS_PATH="${SCRIPT_DIR}/Hadge/Secrets.xcconfig"
+
 cat << "EOF"
 .__                 .___  ____           
 |  |__  _____     __| _/ / ___\   ____   
@@ -11,43 +17,43 @@ cat << "EOF"
 
 EOF
 
-echo This script will create a DeveloperSettings.xcconfig and Secrets.xcconfig file.
+echo This script will create DeveloperSettings.xcconfig and Hadge/Secrets.xcconfig.
 echo 
 echo We need to ask a few questions first.
 echo 
-read -p "Press enter to get started."
+read -r -p "Press enter to get started."
 
 
 # Get the user's Developer Team ID
 echo 1. What is your Developer Team ID? You can get this from developer.apple.com.
-read devTeamID
+read -r devTeamID
 
 # Get the user's Org Identifier
 echo 2. What is your organisation identifier? e.g. com.developername
-read devOrgName
+read -r devOrgName
 
 # Get the user's Developer Team ID
-echo 1. What is your GitHub App Client ID? See README for how to create a GitHub OAuth App
-read githubClientId
+echo 3. What is your GitHub App Client ID? See README for how to create a GitHub OAuth App
+read -r githubClientId
 
 # Get the user's Org Identifier
-echo 2. What is your GitHub App Client Secret? See README for how to create a GitHub OAuth App
-read githubClientSecret
+echo 4. What is your GitHub App Client Secret? See README for how to create a GitHub OAuth App
+read -r githubClientSecret
 
-echo Creating DeveloperSettings.xcconfig
+echo "Creating ${DEVELOPER_SETTINGS_PATH}"
 
-cat <<file >> DeveloperSettings.xcconfig
+cat <<file > "${DEVELOPER_SETTINGS_PATH}"
 CODE_SIGN_IDENTITY = Apple Development
 DEVELOPMENT_TEAM = $devTeamID
 CODE_SIGN_STYLE = Automatic
 ORGANIZATION_IDENTIFIER = $devOrgName
 file
 
-echo Creating Secrets.xcconfig
+echo "Creating ${SECRETS_PATH}"
 
-cat <<file >> Hadge/Secrets.xcconfig
-GITHUB_CLIENT_ID = $githubClientId
-GITHUB_CLIENT_SECRET = $githubClientSecret
+cat <<file > "${SECRETS_PATH}"
+GITHUB_CLIENT_ID = "$githubClientId"
+GITHUB_CLIENT_SECRET = "$githubClientSecret"
 file
 
 echo Done! 

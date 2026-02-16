@@ -43,12 +43,8 @@ Hadge requires a GitHub OAuth application. You will need to create an [OAuth App
 to test and build a version of the application. Once you have your App, you will need to create a `Secrets.xcconfig`
 file  locally at the appropriate path that contains the Client ID and Client Secret.
 
-You can locally override the Xcode settings for code signing
-by creating a `DeveloperSettings.xcconfig` file locally at the appropriate path.
-
-This allows for a pristine project with theis own OAuth App and code signing set up with the appropriate
-developer ID and certificates, and for a developer to be able to have local settings
-without needing to check in anything into source control.
+You can locally override the Xcode settings for code signing by creating a `DeveloperSettings.xcconfig`
+file at the project root. This keeps each developer's Apple signing settings local and out of source control.
 
 You can do this in one of two ways: using the included `setup.sh` script or the files manually.
 
@@ -60,8 +56,13 @@ You can do this in one of two ways: using the included `setup.sh` script or the 
 
 ##### Manually 
 
-Create a plain text file at the root of the project directory named `DeveloperSettings.xcconfig` and
-give it the contents:
+Copy the template at the root of the project:
+
+```
+cp DeveloperSettings.template.xcconfig DeveloperSettings.xcconfig
+```
+
+Then update these values in `DeveloperSettings.xcconfig`:
 
 ```
 CODE_SIGN_IDENTITY = Apple Development
@@ -71,22 +72,20 @@ ORGANIZATION_IDENTIFIER = <Your Domain Name Reversed>
 ```
 
 Set `DEVELOPMENT_TEAM` to your Apple supplied development team.  You can use Keychain
-Access to [find your development team ID](/Technotes/FindingYourDevelopmentTeamID.md).
+Access to find your development team ID.
 Set `ORGANIZATION_IDENTIFIER` to a reversed domain name that you control or have made up.
 
-Create a plain text file at the root of the project directory named `Hadge/Secrets.xcconfig` and
-give it the contents:
+Then create `Hadge/Secrets.xcconfig`:
 
 ```
 GITHUB_CLIENT_ID = "<Your GitHub App Client ID>"
-GITHUB_CLIENT_SECRET = "<Your GitHub App Client Secrent>"
+GITHUB_CLIENT_SECRET = "<Your GitHub App Client Secret>"
 ```
 
 Set `GITHUB_CLIENT_ID` to your GitHub App Client ID and `GITHUB_CLIENT_SECRET` to your 
 GitHub App Client Secret.
 
-Now you should be able to build without code signing errors and without modifying
-the project
+Now you should be able to build without modifying committed project files.
 
 ## Privacy Policy
 

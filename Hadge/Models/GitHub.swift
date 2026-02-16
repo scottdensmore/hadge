@@ -32,7 +32,7 @@ class GitHub {
     }
 
     func prepare() {
-        keychain = Keychain(service: "io.entire.hadge.github-token")
+        keychain = Keychain(service: AppIdentifiers.keychainService)
         if (keychain!["token"] == nil) || (keychain!["token"]?.isEmpty)! {
             oauth = OAuthConfiguration(token: Secrets.gitHubClientId, secret: Secrets.gitHubClientSecret, scopes: ["repo"])
             configURL = oauth!.authenticate()

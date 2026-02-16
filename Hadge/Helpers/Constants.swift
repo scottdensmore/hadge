@@ -13,6 +13,22 @@ class UserDefaultKeys {
     static let workoutFilter = "workoutFilter"
 }
 
+class AppIdentifiers {
+    private static let fallbackBundleIdentifier = "com.example.hadge"
+
+    static var bundleIdentifier: String {
+        return Bundle.main.bundleIdentifier ?? fallbackBundleIdentifier
+    }
+
+    static var backgroundFetchTask: String {
+        return "\(bundleIdentifier).bg-fetch"
+    }
+
+    static var keychainService: String {
+        return "\(bundleIdentifier).github-token"
+    }
+}
+
 enum InterfaceStyle: Int {
     case automatic
     case light
