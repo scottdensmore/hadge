@@ -26,6 +26,7 @@ class GitHub {
     var oauth: OAuthConfiguration?
     var keychain: Keychain?
     var lastEventId: Int? = 0
+    private var authenticationSession: ASWebAuthenticationSession?
 
     static func shared() -> GitHub {
         return sharedInstance
@@ -54,13 +55,15 @@ class GitHub {
     }
 
     func signIn(_ contextProvider: ASWebAuthenticationPresentationContextProviding?) {
-        let session = ASWebAuthenticationSession(url: configURL!, callbackURLScheme: "hadge") { url, error in
-            if error != nil {
+        authenticationSession = ASWebAuthenticationSession(url: configURL!, callbackURLScheme: "hadge") { url, error in
+            defer { self.authenticationSession = nil }
+
+            guard error == nil, let url = url else {
                 NotificationCenter.default.post(name: .signInFailed, object: nil)
                 return
             }
 
-            GitHub.shared().process(url: url!) { username in
+            GitHub.shared().process(url: url) { username in
                 if username != nil {
                     NotificationCenter.default.post(name: .didSignIn, object: nil)
                 } else {
@@ -68,9 +71,9 @@ class GitHub {
                 }
             }
         }
-        session.prefersEphemeralWebBrowserSession = true
-        session.presentationContextProvider = contextProvider
-        session.start()
+        authenticationSession?.prefersEphemeralWebBrowserSession = true
+        authenticationSession?.presentationContextProvider = contextProvider
+        authenticationSession?.start()
     }
 
     func signOut() {

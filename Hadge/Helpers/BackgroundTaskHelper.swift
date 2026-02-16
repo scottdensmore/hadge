@@ -1,6 +1,7 @@
 import UIKit
 import BackgroundTasks
 import HealthKit
+import UserNotifications
 import os.log
 
 class BackgroundTaskHelper {

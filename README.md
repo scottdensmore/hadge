@@ -34,6 +34,8 @@ Find other awesome pinned gists in matchai's [awesome-pinned-gists repo](https:/
 
 #### Building
 
+The project is configured for a modern iOS toolchain (Xcode 16+ / Swift 5 mode) with an iOS 15.0 deployment target.
+
 Hadge relies on [swiftlint](https://realm.github.io/SwiftLint/) and 
 [sourcery](https://github.com/krzysztofzablocki/Sourcery). They can be installed 
 via [homebrew](https://brew.sh) via the provided `Brewfile` by running `brew bundle`
