@@ -346,7 +346,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "sourcery \\\n  --sources Hadge \\\n  --templates Hadge/Helpers/Secrets.stencil \\\n  --output Hadge/Generated \\\n  --args gitHubClientId=\\\"${GITHUB_CLIENT_ID}\\\",gitHubClientSecret=\\\"${GITHUB_CLIENT_SECRET}\\\"\n";
+			shellScript = "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH\n\nif [ -x /opt/homebrew/bin/sourcery ]; then\n  SOURCERY=/opt/homebrew/bin/sourcery\nelif [ -x /usr/local/bin/sourcery ]; then\n  SOURCERY=/usr/local/bin/sourcery\nelif command -v sourcery >/dev/null 2>&1; then\n  SOURCERY=$(command -v sourcery)\nelse\n  echo 'error: Sourcery not found. Install with brew bundle or brew install sourcery.' >&2\n  exit 1\nfi\n\nSOURCERY_CACHE=${DERIVED_FILE_DIR}/SourceryCache\nmkdir -p $SOURCERY_CACHE\n\n$SOURCERY \\\n  --cacheBasePath $SOURCERY_CACHE \\\n  --sources Hadge \\\n  --templates Hadge/Helpers/Secrets.stencil \\\n  --output Hadge/Generated \\\n  --args gitHubClientId=${GITHUB_CLIENT_ID},gitHubClientSecret=${GITHUB_CLIENT_SECRET}\n";
 		};
 		4DB3F68F2453FB3C004C8BF3 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -364,7 +364,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nswiftlint\n";
+			shellScript = "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH\n\nif [ -x /opt/homebrew/bin/swiftlint ]; then\n  SWIFTLINT=/opt/homebrew/bin/swiftlint\nelif [ -x /usr/local/bin/swiftlint ]; then\n  SWIFTLINT=/usr/local/bin/swiftlint\nelif command -v swiftlint >/dev/null 2>&1; then\n  SWIFTLINT=$(command -v swiftlint)\nelse\n  echo 'error: SwiftLint not found. Install with brew bundle or brew install swiftlint.' >&2\n  exit 1\nfi\n\n$SWIFTLINT\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
