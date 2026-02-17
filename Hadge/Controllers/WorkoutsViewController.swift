@@ -14,7 +14,9 @@ class WorkoutsViewController: EntireTableViewController {
         super.viewDidLoad()
 
         self.extendedLayoutIncludesOpaqueBars = true
-        self.tableView.reloadData()
+        self.title = "Workouts"
+        self.tableView.register(WorkoutCell.self, forCellReuseIdentifier: "WorkoutCell")
+        self.tableView.rowHeight = 84
 
         loadAvatar()
         setUpRefreshControl()
@@ -30,9 +32,9 @@ class WorkoutsViewController: EntireTableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        if !GitHub.shared().isSignedIn() || !UserDefaults.standard.bool(forKey: UserDefaultKeys.setupFinished) {
-            self.navigationController?.performSegue(withIdentifier: "SetupSegue", sender: nil)
-        } else if !dataLoaded {
+        self.navigationController?.setToolbarHidden(false, animated: false)
+
+        if UserDefaults.standard.bool(forKey: UserDefaultKeys.setupFinished) && GitHub.shared().isSignedIn() && !dataLoaded {
             GitHub.shared().refreshCurrentUser()
         }
     }
@@ -40,22 +42,13 @@ class WorkoutsViewController: EntireTableViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        if UserDefaults.standard.bool(forKey: UserDefaultKeys.setupFinished) && !dataLoaded {
-            loadData(false)
+        if shouldPresentSetupFlow() {
+            presentSetupFlow(animated: false)
+            return
         }
-    }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "FilterSegue" {
-            let filterNavigationViewController = segue.destination as? UINavigationController
-            let filterViewController = filterNavigationViewController?.viewControllers.first as? FilterViewController
-            filterViewController?.delegate = self
-            filterViewController?.preChecked = filter
-        } else if segue.identifier == "DetailSegue" {
-            let workoutViewController = segue.destination as? WorkoutViewController
-            if let workout = data[tableView.indexPathForSelectedRow!.row]["workout"] as? HKWorkout? {
-                workoutViewController?.workout = workout
-            }
+        if !dataLoaded {
+            loadData(false)
         }
     }
 
@@ -74,27 +67,61 @@ class WorkoutsViewController: EntireTableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let identifier = "WorkoutCell"
-        let cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? WorkoutCell
-
-        if let workout = data[indexPath.row]["workout"] as? HKWorkout? {
-            cell?.titleLabel?.text = workout?.workoutActivityType.name
-            cell?.emojiLabel?.text = workout?.workoutActivityType.associatedEmoji(for: Health.shared().getBiologicalSex()!)
-            cell?.setStartDate(workout!.startDate)
-            cell?.setDistance(workout!.totalDistance)
-            cell?.setDuration(workout!.duration)
-            cell?.setEnergy(workout!.totalEnergyBurned)
-            cell?.sourceLabel?.text = workout!.sourceRevision.source.name
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? WorkoutCell else {
+            return UITableViewCell(style: .default, reuseIdentifier: identifier)
         }
 
-        return cell!
+        if let workout = data[indexPath.row]["workout"] as? HKWorkout? {
+            cell.titleLabel.text = workout?.workoutActivityType.name
+            cell.emojiLabel.text = workout?.workoutActivityType.associatedEmoji(for: Health.shared().getBiologicalSex()!)
+            cell.setStartDate(workout!.startDate)
+            cell.setDistance(workout!.totalDistance)
+            cell.setDuration(workout!.duration)
+            cell.setEnergy(workout!.totalEnergyBurned)
+            cell.sourceLabel.text = workout!.sourceRevision.source.name
+        }
+
+        return cell
     }
 
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        guard let workout = data[indexPath.row]["workout"] as? HKWorkout else { return }
+
+        let workoutViewController = WorkoutViewController(style: .insetGrouped)
+        workoutViewController.workout = workout
+        navigationController?.pushViewController(workoutViewController, animated: true)
+    }
+}
+
+extension WorkoutsViewController {
     @objc func showFilter(sender: Any) {
-        performSegue(withIdentifier: "FilterSegue", sender: self)
+        let filterViewController = FilterViewController(style: .insetGrouped)
+        filterViewController.delegate = self
+        filterViewController.preChecked = filter
+        filterViewController.title = "Filter"
+        filterViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: filterViewController,
+            action: #selector(FilterViewController.dismiss(_:))
+        )
+
+        let navigationController = EntireNavigationController(rootViewController: filterViewController)
+        present(navigationController, animated: true)
     }
 
     @objc func showSettings(sender: Any) {
-        performSegue(withIdentifier: "SettingsSegue", sender: self)
+        let settingsViewController = SettingsViewController(style: .insetGrouped)
+        settingsViewController.title = "Settings"
+        settingsViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: settingsViewController,
+            action: #selector(SettingsViewController.dismiss(_:))
+        )
+
+        let navigationController = EntireNavigationController(rootViewController: settingsViewController)
+        present(navigationController, animated: true)
     }
 
     @objc func didSignIn() {
@@ -110,7 +137,7 @@ class WorkoutsViewController: EntireTableViewController {
             self.tableView.reloadData()
             self.loadAvatar()
 
-            self.navigationController?.performSegue(withIdentifier: "SetupSegue", sender: nil)
+            self.presentSetupFlow()
         }
     }
 
@@ -149,7 +176,9 @@ class WorkoutsViewController: EntireTableViewController {
     @objc func openSafari(sender: Any) {
         UIApplication.shared.open(URL.init(string: "https://github.com/\(GitHub.shared().username()!)/\(GitHub.defaultRepository)")!)
     }
+}
 
+extension WorkoutsViewController {
     func startRefreshing(_ visible: Bool = true) {
         DispatchQueue.main.async {
             if self.tableView.refreshControl != nil && visible {
@@ -247,7 +276,9 @@ class WorkoutsViewController: EntireTableViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(WorkoutsViewController.collectingDistanceData), name: .collectingDistanceData, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(WorkoutsViewController.didFinishExport), name: .didFinishExport, object: nil)
     }
+}
 
+extension WorkoutsViewController {
     func loadData(_ visible: Bool = true) {
         dataLoaded = false
         startRefreshing(visible)
@@ -289,6 +320,21 @@ class WorkoutsViewController: EntireTableViewController {
             self.tableView.reloadSections([ 0 ], with: .automatic)
             self.saveState()
         }
+    }
+
+    func shouldPresentSetupFlow() -> Bool {
+        !GitHub.shared().isSignedIn() || !UserDefaults.standard.bool(forKey: UserDefaultKeys.setupFinished)
+    }
+
+    func presentSetupFlow(animated: Bool = true) {
+        guard !(presentedViewController is SetupPageViewController) else { return }
+
+        let setupPageViewController = SetupPageViewController(
+            transitionStyle: .scroll,
+            navigationOrientation: .horizontal
+        )
+        setupPageViewController.modalPresentationStyle = .fullScreen
+        present(setupPageViewController, animated: animated)
     }
 }
 

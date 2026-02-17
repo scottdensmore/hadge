@@ -6,18 +6,53 @@ class SetupViewController: EntireViewController {
     var stopped = false
     var years: [String: [Any]] = [:]
 
-    @IBOutlet weak var titleView: UITextView!
-    @IBOutlet weak var bodyView: UITextView!
-
     // If the delegate is set, we assume that the controller is used outside the setup flow
     weak var delegate: NSObject?
+    private let titleLabel = UILabel()
+    private let bodyLabel = UILabel()
+    private let progressView = UIActivityIndicatorView(style: .large)
 
     override func viewDidLoad() {
+        super.viewDidLoad()
+
+        configureView()
         initalizeRepository()
 
         if delegate != nil {
-            self.titleView.text = "Re-upload all data"
+            self.titleLabel.text = "Re-upload all data"
         }
+    }
+
+    func configureView() {
+        view.backgroundColor = UIColor.systemBackground
+
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = "Initial Export"
+        titleLabel.font = UIFont.preferredFont(forTextStyle: .title2)
+        titleLabel.numberOfLines = 0
+
+        bodyLabel.translatesAutoresizingMaskIntoConstraints = false
+        bodyLabel.text = "Hadge is exporting your activity, distance, and workout data."
+        bodyLabel.textColor = UIColor.secondaryLabel
+        bodyLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        bodyLabel.numberOfLines = 0
+
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        progressView.startAnimating()
+
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, bodyLabel, progressView])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.alignment = .leading
+        stackView.spacing = 16
+
+        view.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
+        ])
     }
 
     func initalizeRepository() {
@@ -86,7 +121,9 @@ class SetupViewController: EntireViewController {
         UserDefaults.standard.set(true, forKey: UserDefaultKeys.setupFinished)
         NotificationCenter.default.post(name: .didSetUpRepository, object: nil)
         BackgroundTaskHelper.shared().registerBackgroundDelivery()
-        UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier!)
+        if let backgroundTaskIdentifier {
+            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        }
 
         if delegate != nil {
             DispatchQueue.main.async {

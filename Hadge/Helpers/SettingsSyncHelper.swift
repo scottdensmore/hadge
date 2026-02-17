@@ -20,7 +20,7 @@ class SettingsSyncHelper {
         switch didSelectRow {
         case 0:
             NotificationCenter.default.addObserver(viewController, selector: #selector(SettingsViewController.didFinishUpload), name: .didSetUpRepository, object: nil)
-            viewController.performSegue(withIdentifier: "UploadSegue", sender: self)
+            viewController.presentUploadFlow()
         default: // No op
             break
         }

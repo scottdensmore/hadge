@@ -41,6 +41,13 @@ class SettingsViewController: EntireTableViewController {
         NotificationCenter.default.removeObserver(self)
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        self.title = "Settings"
+        self.tableView.register(AccountCell.self, forCellReuseIdentifier: "AccountCell")
+    }
+
     override func numberOfSections(in tableView: UITableView) -> Int {
         return SettingsSections.all.count - debugOffset()
     }
@@ -125,19 +132,19 @@ class SettingsViewController: EntireTableViewController {
         }
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "UploadSegue" {
-            let setupViewController = segue.destination as? SetupViewController
-            setupViewController?.delegate = self
-        }
-    }
-
     @IBAction func dismiss(_ sender: Any) {
         self.navigationController!.dismiss(animated: true)
     }
 
     @objc func didFinishUpload() {
         NotificationCenter.default.removeObserver(self, name: .didSetUpRepository, object: nil)
+    }
+
+    func presentUploadFlow() {
+        let setupViewController = SetupViewController()
+        setupViewController.delegate = self
+        setupViewController.modalPresentationStyle = .fullScreen
+        present(setupViewController, animated: true)
     }
 
     func debugOffset() -> Int {
