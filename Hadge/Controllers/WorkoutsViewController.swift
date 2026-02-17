@@ -5,8 +5,12 @@ import SwiftDate
 
 class WorkoutsViewController: EntireTableViewController {
     var data: [[String: Any]] = []
+    var allWorkouts: [HKWorkout] = []
+    var availableYears: [Int] = []
+    var selectedYear: Int?
     var statusLabel: UILabel?
     var filter: [UInt] = []
+    var yearButton: UIBarButtonItem?
     var filterButton: UIBarButtonItem?
     var dataLoaded: Bool = false
 
@@ -53,9 +57,14 @@ class WorkoutsViewController: EntireTableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if dataLoaded && data.count == 0 && filter.count > 0 {
-            tableView.setEmptyMessage("No workouts for the selected filter.")
-            return data.count
+        if dataLoaded && data.count == 0 && allWorkouts.count > 0 {
+            let yearText = selectedYear.map(String.init) ?? "the selected year"
+            if filter.count > 0 {
+                tableView.setEmptyMessage("No workouts for \(yearText) and the selected filter.")
+            } else {
+                tableView.setEmptyMessage("No workouts for \(yearText).")
+            }
+            return 0
         } else if dataLoaded && data.count == 0 {
             tableView.setEmptyMessage("No workout data available. Check the permissions for Hadge in Health app if you recently worked out.")
             return 0
@@ -96,6 +105,27 @@ class WorkoutsViewController: EntireTableViewController {
 }
 
 extension WorkoutsViewController {
+    @objc func showYearPicker(sender: Any) {
+        guard availableYears.count > 0 else { return }
+
+        let yearPicker = UIAlertController(title: "Year", message: nil, preferredStyle: .actionSheet)
+        availableYears.forEach { year in
+            let yearLabel = selectedYear == year ? "[Selected] \(year)" : String(year)
+            yearPicker.addAction(UIAlertAction(title: yearLabel, style: .default, handler: { _ in
+                self.selectYear(year)
+            }))
+        }
+        yearPicker.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        if let popover = yearPicker.popoverPresentationController {
+            popover.barButtonItem = yearButton
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.maxY, width: 0, height: 0)
+        }
+
+        present(yearPicker, animated: true)
+    }
+
     @objc func showFilter(sender: Any) {
         let filterViewController = FilterViewController(style: .insetGrouped)
         filterViewController.delegate = self
@@ -245,13 +275,15 @@ extension WorkoutsViewController {
         statusLabel?.numberOfLines = 2
 
         let statusItem = UIBarButtonItem(customView: statusLabel!)
+        yearButton = UIBarButtonItem(title: "", style: .plain, target: self, action: #selector(showYearPicker(sender:)))
         filterButton = UIBarButtonItem(image: UIImage(systemName: "line.horizontal.3.decrease.circle"), style: .plain, target: self, action: #selector(showFilter(sender:)))
         filterButton?.tintColor = (self.filter.isEmpty ? UIColor.secondaryLabel : UIColor.systemBlue)
+        updateYearButton()
         let rightButtonItem = UIBarButtonItem(image: UIImage(systemName: "safari"), style: .plain, target: self, action: #selector(openSafari(sender:)))
         rightButtonItem.tintColor = UIColor.secondaryLabel
         let leftSpaceItem = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let rightSpaceItem = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        self.toolbarItems = [filterButton!, leftSpaceItem, statusItem, rightSpaceItem, rightButtonItem]
+        self.toolbarItems = [yearButton!, filterButton!, leftSpaceItem, statusItem, rightSpaceItem, rightButtonItem]
     }
 
     func setUpRefreshControl() {
@@ -261,10 +293,17 @@ extension WorkoutsViewController {
 
     func restoreState() {
         self.filter = UserDefaults.standard.array(forKey: UserDefaultKeys.workoutFilter) as? [UInt] ?? [UInt]()
+        let savedYear = UserDefaults.standard.integer(forKey: UserDefaultKeys.workoutYear)
+        self.selectedYear = savedYear > 0 ? savedYear : nil
     }
 
     func saveState() {
         UserDefaults.standard.set(self.filter, forKey: UserDefaultKeys.workoutFilter)
+        if let selectedYear = self.selectedYear {
+            UserDefaults.standard.set(selectedYear, forKey: UserDefaultKeys.workoutYear)
+        } else {
+            UserDefaults.standard.removeObject(forKey: UserDefaultKeys.workoutYear)
+        }
         UserDefaults.standard.synchronize()
     }
 
@@ -286,28 +325,43 @@ extension WorkoutsViewController {
     }
 
     func loadWorkouts(_ visible: Bool = true) {
-        Health.shared().getWorkouts { workouts in
+        Health.shared().getWorkoutsForDates(start: nil, end: nil) { workouts in
             self.data = []
+            self.allWorkouts = []
+            self.availableYears = []
             self.dataLoaded = true
 
-            guard let workouts = workouts, workouts.count > 0 else { self.reloadWithEmptyWorkout(); return }
+            guard let workouts = workouts, workouts.count > 0 else {
+                self.selectedYear = nil
+                self.reloadWithEmptyWorkout()
+                return
+            }
 
-            self.createDataFromWorkouts(workouts: workouts)
+            self.allWorkouts = workouts.compactMap { $0 as? HKWorkout }
+            self.availableYears = self.yearsForWorkouts(self.allWorkouts)
+            self.selectDefaultYearIfNeeded()
+            self.createDataFromWorkouts(workouts: self.allWorkouts)
         }
         BackgroundTaskHelper.shared().handleForegroundFetch()
     }
 
     func reloadWithEmptyWorkout() {
         DispatchQueue.main.async {
+            self.updateYearButton()
             self.stopRefreshing(true)
             self.tableView.reloadSections([ 0 ], with: .automatic)
         }
     }
 
-    func createDataFromWorkouts(workouts: [HKSample]) {
+    func createDataFromWorkouts(workouts: [HKWorkout]) {
+        let calendar = Calendar.current
+        self.data = []
+
         workouts.forEach { workout in
-            guard let workout = workout as? HKWorkout else { return }
-            if filter.isEmpty || filter.firstIndex(of: workout.workoutActivityType.rawValue) != nil {
+            let workoutYear = calendar.component(.year, from: workout.startDate)
+            let yearMatches = selectedYear == nil || selectedYear == workoutYear
+            let typeMatches = filter.isEmpty || filter.firstIndex(of: workout.workoutActivityType.rawValue) != nil
+            if yearMatches && typeMatches {
                 data.append([
                     "title": workout.workoutActivityType.name,
                     "workout": workout
@@ -316,9 +370,47 @@ extension WorkoutsViewController {
         }
 
         DispatchQueue.main.async {
+            self.updateYearButton()
             self.stopRefreshing(true)
             self.tableView.reloadSections([ 0 ], with: .automatic)
             self.saveState()
+        }
+    }
+
+    func yearsForWorkouts(_ workouts: [HKWorkout]) -> [Int] {
+        let calendar = Calendar.current
+        let years = Set(workouts.map { calendar.component(.year, from: $0.startDate) })
+        return years.sorted(by: >)
+    }
+
+    func selectDefaultYearIfNeeded() {
+        guard availableYears.count > 0 else {
+            selectedYear = nil
+            return
+        }
+        guard let selectedYear = selectedYear, availableYears.firstIndex(of: selectedYear) != nil else {
+            self.selectedYear = availableYears.first
+            return
+        }
+    }
+
+    func selectYear(_ year: Int) {
+        guard selectedYear != year else { return }
+        selectedYear = year
+        createDataFromWorkouts(workouts: allWorkouts)
+    }
+
+    func updateYearButton() {
+        guard let yearButton = yearButton else { return }
+
+        if let selectedYear = selectedYear {
+            yearButton.title = String(selectedYear)
+            yearButton.tintColor = UIColor.systemBlue
+            yearButton.isEnabled = availableYears.count > 1
+        } else {
+            yearButton.title = "Year"
+            yearButton.tintColor = UIColor.secondaryLabel
+            yearButton.isEnabled = false
         }
     }
 
@@ -347,7 +439,7 @@ extension WorkoutsViewController: FilterDelegate {
             } else {
                 self.filterButton?.tintColor = UIColor.systemBlue
             }
-            self.loadData(false)
+            self.createDataFromWorkouts(workouts: allWorkouts)
             self.saveState()
         }
     }

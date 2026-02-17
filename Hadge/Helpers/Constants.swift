@@ -11,6 +11,7 @@ class UserDefaultKeys {
     static let lastSyncDate = "lastSyncDate"
     static let setupFinished = "setupFinished"
     static let workoutFilter = "workoutFilter"
+    static let workoutYear = "workoutYear"
 }
 
 class AppIdentifiers {
