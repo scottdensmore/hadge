@@ -1,0 +1,58 @@
+name: "Run Unit Tests"
+description: "Runs iOS unit tests on an available iPhone simulator"
+inputs:
+  minimum-coverage:
+    description: "Minimum line coverage percentage required for the Hadge.app target"
+    required: false
+    default: "20.0"
+outputs:
+  coverage-percent:
+    description: "Measured line coverage percentage for Hadge.app"
+    value: ${{ steps.run-tests.outputs.coverage-percent }}
+runs:
+  using: "composite"
+  steps:
+    - name: Select simulator and run tests
+      id: run-tests
+      shell: bash
+      run: |
+        set -eo pipefail
+
+        SIMULATOR_ID=$(xcrun simctl list devices available iOS | awk -F '[()]' '/iPhone/ { print $2; exit }')
+
+        if [ -z "$SIMULATOR_ID" ]; then
+          echo "error: no available iPhone simulator found" >&2
+          exit 1
+        fi
+
+        RESULT_BUNDLE_PATH="${RUNNER_TEMP}/HadgeTests.xcresult"
+        COVERAGE_REPORT_PATH="${RUNNER_TEMP}/HadgeCoverage.txt"
+
+        rm -rf "$RESULT_BUNDLE_PATH"
+
+        xcodebuild \
+          -project Hadge.xcodeproj/ \
+          -scheme Hadge \
+          -destination "id=$SIMULATOR_ID" \
+          CODE_SIGNING_ALLOWED=NO \
+          -enableCodeCoverage YES \
+          -resultBundlePath "$RESULT_BUNDLE_PATH" \
+          test
+
+        xcrun xccov view --report "$RESULT_BUNDLE_PATH" > "$COVERAGE_REPORT_PATH"
+
+        COVERAGE_PERCENT=$(awk '/^Hadge\.app[[:space:]]/ { gsub("%", "", $2); print $2; exit }' "$COVERAGE_REPORT_PATH")
+        if [ -z "$COVERAGE_PERCENT" ]; then
+          echo "error: unable to determine coverage for Hadge.app" >&2
+          exit 1
+        fi
+
+        echo "coverage-percent=${COVERAGE_PERCENT}" >> "$GITHUB_OUTPUT"
+
+        MINIMUM_COVERAGE="${{ inputs.minimum-coverage }}"
+        if awk -v coverage="$COVERAGE_PERCENT" -v minimum="$MINIMUM_COVERAGE" 'BEGIN { exit (coverage + 0 >= minimum + 0) ? 0 : 1 }'; then
+          echo "Coverage gate passed: ${COVERAGE_PERCENT}% >= ${MINIMUM_COVERAGE}%"
+        else
+          echo "error: coverage gate failed (${COVERAGE_PERCENT}% < ${MINIMUM_COVERAGE}%)" >&2
+          exit 1
+        fi

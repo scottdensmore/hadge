@@ -6,6 +6,16 @@ extension Notification.Name {
     static let didReceiveHealthAccess = Notification.Name("didReceiveHealthAccess")
 }
 
+protocol GitHubFileUpdating {
+    func updateFile(path: String, content: String, message: String, completionHandler: @escaping (String?) -> Void)
+}
+
+struct LiveGitHubFileUpdater: GitHubFileUpdating {
+    func updateFile(path: String, content: String, message: String, completionHandler: @escaping (String?) -> Void) {
+        GitHub.shared().updateFile(path: path, content: content, message: message, completionHandler: completionHandler)
+    }
+}
+
 class Health {
     static let sharedInstance = Health()
 
@@ -14,6 +24,7 @@ class Health {
     var locationDataSource: LocationDataSource?
     var sampleDataSource: SampleDataSource?
     var splitsDataSource: SplitsDataSource?
+    var fileUpdater: GitHubFileUpdating
 
     var year: Int
     var firstOfYear: Date?
@@ -32,6 +43,7 @@ class Health {
         self.locationDataSource = LocationDataSource()
         self.sampleDataSource = SampleDataSource()
         self.splitsDataSource = SplitsDataSource()
+        self.fileUpdater = LiveGitHubFileUpdater()
 
         let calendar = Calendar.current
         self.year = calendar.component(.year, from: Date())
@@ -277,15 +289,25 @@ class Health {
     }
 
     func exportData(_ years: [String: [Any]], directory: String, contentHandler: @escaping ([Any]) -> String, completionHandler: @escaping () -> Void) {
-        guard let year = years.first else { completionHandler(); return }
-        guard !stopExport else { return }
+        let entries = years.sorted(by: { $0.key < $1.key })
+        exportData(entries[...], directory: directory, contentHandler: contentHandler, completionHandler: completionHandler)
+    }
+
+    private func exportData(_ entries: ArraySlice<(key: String, value: [Any])>, directory: String, contentHandler: @escaping ([Any]) -> String, completionHandler: @escaping () -> Void) {
+        guard !stopExport else {
+            completionHandler()
+            return
+        }
+
+        guard let year = entries.first else {
+            completionHandler()
+            return
+        }
 
         let content = contentHandler(year.value)
         let filename = "\(directory)/\(year.key).csv"
-        GitHub.shared().updateFile(path: filename, content: content, message: "Initial export for \(year.key).") { _ in
-            var next = years
-            next.removeValue(forKey: year.key)
-            self.exportData(next, directory: directory, contentHandler: contentHandler, completionHandler: completionHandler)
+        fileUpdater.updateFile(path: filename, content: content, message: "Initial export for \(year.key).") { _ in
+            self.exportData(entries.dropFirst(), directory: directory, contentHandler: contentHandler, completionHandler: completionHandler)
         }
     }
 }

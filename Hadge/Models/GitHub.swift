@@ -12,6 +12,17 @@ extension Notification.Name {
     static let didSetUpRepository = Notification.Name("didSetUpRepository")
 }
 
+protocol GitHubCredentialStore {
+    subscript(_ key: String) -> String? { get set }
+}
+
+extension Keychain: GitHubCredentialStore {}
+
+enum GitHubResponseError: Error {
+    case nonHTTPResponse
+    case invalidData
+}
+
 class GitHub {
     static let sharedInstance = GitHub()
 
@@ -24,8 +35,9 @@ class GitHub {
     var configURL: URL?
     var config: TokenConfiguration?
     var oauth: OAuthConfiguration?
-    var keychain: Keychain?
+    var keychain: GitHubCredentialStore?
     var lastEventId: Int? = 0
+    var requestExecutor: ((URLRequest, @escaping (Data?, URLResponse?, Error?) -> Void) -> Void)?
     private var authenticationSession: ASWebAuthenticationSession?
 
     static func shared() -> GitHub {
@@ -33,29 +45,37 @@ class GitHub {
     }
 
     func prepare() {
-        keychain = Keychain(service: AppIdentifiers.keychainService)
-        if (keychain!["token"] == nil) || (keychain!["token"]?.isEmpty)! {
+        if keychain == nil {
+            keychain = Keychain(service: AppIdentifiers.keychainService)
+        }
+
+        if accessToken() == nil {
             oauth = OAuthConfiguration(token: Secrets.gitHubClientId, secret: Secrets.gitHubClientSecret, scopes: ["repo"])
             configURL = oauth!.authenticate()
         } else {
-            config = TokenConfiguration(self.keychain!["token"])
+            config = TokenConfiguration(accessToken())
         }
     }
 
     func isSignedIn() -> Bool {
-        return (keychain!["token"] != nil) && !(keychain!["token"]?.isEmpty)! && (self.keychain!["username"] != nil) && !(self.keychain!["username"]?.isEmpty)!
+        guard let token = accessToken(), !token.isEmpty,
+              let user = username(), !user.isEmpty else {
+            return false
+        }
+        return true
     }
 
     func returnAuthenticatedUsername() -> String {
-        if isSignedIn() {
-            return self.keychain!["username"]!
-        } else {
-            return "github"
-        }
+        return username() ?? "github"
     }
 
     func signIn(_ contextProvider: ASWebAuthenticationPresentationContextProviding?) {
-        authenticationSession = ASWebAuthenticationSession(url: configURL!, callbackURLScheme: "hadge") { url, error in
+        guard let configURL else {
+            NotificationCenter.default.post(name: .signInFailed, object: nil)
+            return
+        }
+
+        authenticationSession = ASWebAuthenticationSession(url: configURL, callbackURLScheme: "hadge") { url, error in
             defer { self.authenticationSession = nil }
 
             guard error == nil, let url = url else {
@@ -77,13 +97,18 @@ class GitHub {
     }
 
     func signOut() {
-        self.keychain!["username"] = nil
-        self.keychain!["token"] = nil
+        self.keychain?["username"] = nil
+        self.keychain?["token"] = nil
         self.prepare()
     }
 
     func process(url: URL, completionHandler: @escaping (String?) -> Void) {
-        oauth!.handleOpenURL(url: url) { config in
+        guard let oauth else {
+            completionHandler(nil)
+            return
+        }
+
+        oauth.handleOpenURL(url: url) { config in
             self.loadCurrentUser(config: config) { username in
                 completionHandler(username)
             }
@@ -95,15 +120,17 @@ class GitHub {
     }
 
     func accessToken() -> String? {
-        self.keychain!["token"]
+        guard let token = self.keychain?["token"], !token.isEmpty else { return nil }
+        return token
     }
 
     func username() -> String? {
-        self.keychain!["username"]
+        guard let username = self.keychain?["username"], !username.isEmpty else { return nil }
+        return username
     }
 
     func fullname() -> String? {
-        self.keychain!["fullname"]
+        self.keychain?["fullname"]
     }
 
     func loadCurrentUser(config: TokenConfiguration, completionHandler: @escaping (String?) -> Void) {
@@ -112,12 +139,12 @@ class GitHub {
             case .success(let user):
                 os_log("GitHub User: %@", type: .debug, user.login!)
 
-                self.keychain!["fullname"] = user.name
-                self.keychain!["username"] = user.login
-                self.keychain!["token"] = config.accessToken
+                self.keychain?["fullname"] = user.name
+                self.keychain?["username"] = user.login
+                self.keychain?["token"] = config.accessToken
                 os_log("Token stored", type: .debug)
 
-                self.config = TokenConfiguration(self.keychain!["token"])
+                self.config = TokenConfiguration(self.accessToken())
                 completionHandler(user.login)
             case .failure(let error):
                 os_log("Error while loading user: %@", type: .debug, error.localizedDescription)
@@ -127,11 +154,12 @@ class GitHub {
     }
 
     func refreshCurrentUser() {
-        _ = Octokit(self.config!).me { response in
+        guard let config else { return }
+        _ = Octokit(config).me { response in
             switch response {
             case .success(let user):
-                self.keychain!["fullname"] = user.name
-                self.keychain!["username"] = user.login
+                self.keychain?["fullname"] = user.name
+                self.keychain?["username"] = user.login
             case .failure(let error as NSError):
                 if error.code == 401 {
                     self.signOut()
@@ -142,8 +170,17 @@ class GitHub {
         }
     }
 
+}
+
+extension GitHub {
     func getRepository(completionHandler: @escaping (String?) -> Void) {
-        Octokit(self.config!).repository(owner: username()!, name: GitHub.defaultRepository) { response in
+        guard let config,
+              let currentUsername = self.username() else {
+            completionHandler(nil)
+            return
+        }
+
+        Octokit(config).repository(owner: currentUsername, name: GitHub.defaultRepository) { response in
             switch response {
             case .success(let repository):
                 os_log("Repository ID: %d", type: .debug, repository.id)
@@ -156,7 +193,10 @@ class GitHub {
 
     func createRepository(completionHandler: @escaping (String?) -> Void) {
         let url = URL(string: "https://api.github.com/user/repos")!
-        var request = self.createRequest(url: url, httpMethod: "POST")
+        guard var request = self.createRequest(url: url, httpMethod: "POST") else {
+            completionHandler(nil)
+            return
+        }
         let parameters: [String: Any] = [
             "name": GitHub.defaultRepository,
             "private": true,
@@ -169,40 +209,60 @@ class GitHub {
                 completionHandler(json?["id"].stringValue)
             })
         } catch {
+            completionHandler(nil)
         }
     }
 
-    func getFile(path: String, completionHandler: @escaping (String) -> Void) {
+    func getFile(path: String, completionHandler: @escaping (String?) -> Void) {
+        guard let currentUsername = self.username() else {
+            completionHandler(nil)
+            return
+        }
+
         let escapedPath = path.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!
-        let url = URL(string: "https://api.github.com/repos/\(username()!)/\(GitHub.defaultRepository)/contents/\(escapedPath)")!
-        let request = self.createRequest(url: url, httpMethod: "GET")
+        let url = URL(string: "https://api.github.com/repos/\(currentUsername)/\(GitHub.defaultRepository)/contents/\(escapedPath)")!
+        guard let request = self.createRequest(url: url, httpMethod: "GET") else {
+            completionHandler(nil)
+            return
+        }
 
         self.handleRequest(request, completionHandler: { json, _, _ in
-            let sha = json?["sha"].stringValue
-            os_log("File sha: %@", type: .debug, sha!)
-
-            if sha != nil {
-                completionHandler(sha!)
+            let sha = json?["sha"].string
+            if let sha {
+                os_log("File sha: %@", type: .debug, sha)
             }
+            completionHandler(sha)
         })
     }
 
     func updateFile(path: String, content: String, message: String, completionHandler: @escaping (String?) -> Void) {
+        guard let contentData = content.data(using: .utf8),
+              let username = self.username() else {
+            completionHandler(nil)
+            return
+        }
+
         getFile(path: path) { sha in
             let escapedPath = path.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!
-            let url = URL(string: "https://api.github.com/repos/\(self.username()!)/\(GitHub.defaultRepository)/contents/\(escapedPath)")!
-            var request = self.createRequest(url: url, httpMethod: "PUT")
+            let url = URL(string: "https://api.github.com/repos/\(username)/\(GitHub.defaultRepository)/contents/\(escapedPath)")!
+            guard var request = self.createRequest(url: url, httpMethod: "PUT") else {
+                completionHandler(nil)
+                return
+            }
             let parameters: [String: Any] = [
                 "message": message,
-                "sha": sha,
-                "content": content.data(using: String.Encoding.utf8)!.base64EncodedString(),
+                "content": contentData.base64EncodedString(),
                 "author": [
                     "name": "Hadge",
                     "email": "hadge@entire.io"
                 ]
             ]
+            var mutableParameters = parameters
+            if let sha, !sha.isEmpty {
+                mutableParameters["sha"] = sha
+            }
             do {
-                request.httpBody = try JSON(parameters).rawData()
+                request.httpBody = try JSON(mutableParameters).rawData()
 
                 self.handleRequest(request, completionHandler: { json, _, _ in
                     let sha = json?["content"]["sha"].string
@@ -216,14 +276,20 @@ class GitHub {
             }
         }
     }
+}
 
-    func createRequest(url: URL, httpMethod: String) -> URLRequest {
+extension GitHub {
+    func createRequest(url: URL, httpMethod: String) -> URLRequest? {
+        guard let username = username(), let token = accessToken() else {
+            return nil
+        }
+
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
         request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
         request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
 
-        let loginData = String(format: "%@:%@", username()!, accessToken()!).data(using: String.Encoding.utf8)!
+        let loginData = String(format: "%@:%@", username, token).data(using: String.Encoding.utf8)!
         let base64LoginData = loginData.base64EncodedString()
         request.setValue("Basic \(base64LoginData)", forHTTPHeaderField: "Authorization")
 
@@ -231,24 +297,37 @@ class GitHub {
     }
 
     func handleRequest(_ request: URLRequest, completionHandler: @escaping (JSON?, Int, Error?) -> Void) {
-        let configuration = URLSessionConfiguration.ephemeral
-        let session = URLSession(configuration: configuration)
-        let task: URLSessionDataTask = session.dataTask(with: request) { data, response, error in
-            guard let data = data, error == nil else {
+        let execute = requestExecutor ?? { request, callback in
+            let configuration = URLSessionConfiguration.ephemeral
+            let session: Foundation.URLSession = Foundation.URLSession(configuration: configuration)
+            let task: URLSessionDataTask = session.dataTask(with: request, completionHandler: { data, response, error in
+                callback(data, response, error)
+            })
+            task.resume()
+        }
+
+        execute(request) { data, response, error in
+            if let error {
                 completionHandler(nil, 0, error)
                 return
             }
 
-            if let httpStatus = response as? HTTPURLResponse {
-                do {
-                    let json = try JSON(data: data)
-                    completionHandler(json, httpStatus.statusCode, error)
-                } catch {
-                    completionHandler(nil, 0, error)
-                    return
-                }
+            guard let httpStatus = response as? HTTPURLResponse else {
+                completionHandler(nil, 0, GitHubResponseError.nonHTTPResponse)
+                return
+            }
+
+            guard let data else {
+                completionHandler(nil, httpStatus.statusCode, GitHubResponseError.invalidData)
+                return
+            }
+
+            do {
+                let json = try JSON(data: data)
+                completionHandler(json, httpStatus.statusCode, nil)
+            } catch {
+                completionHandler(nil, httpStatus.statusCode, error)
             }
         }
-        task.resume()
     }
 }

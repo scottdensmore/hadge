@@ -11,6 +11,8 @@ permissions:
 jobs:
   build:
     runs-on: macos-latest
+    env:
+      COVERAGE_MINIMUM: "20.0"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -18,16 +20,10 @@ jobs:
           fetch-depth: 0
       - name: Set Xcode version
         uses: ./.github/actions/set-xcode-version
-      - name: Bump bundle version
-        run: ./.github/scripts/bump_version.sh
       - name: Install gpg
         run: brew install gnupg
       - name: Install sourcery
         run: brew install sourcery
-      - name: Setup provisioning profile
-        env:
-          CERTIFICATE_GPG_KEY: ${{ secrets.CERTIFICATE_GPG_KEY }}
-        run: ./.github/scripts/decrypt_secrets.sh      
       - name: Create secrets xcconfig
         env:
           OCTO_CLIENT_ID: ${{ secrets.OCTO_CLIENT_ID }}
@@ -35,6 +31,19 @@ jobs:
         run: |
           echo "GITHUB_CLIENT_ID = \"${OCTO_CLIENT_ID}\"" >> Hadge/Secrets.xcconfig
           echo "GITHUB_CLIENT_SECRET = \"${OCTO_CLIENT_SECRET}\"" >> Hadge/Secrets.xcconfig
+      - name: Run unit tests
+        id: unit_tests
+        uses: ./.github/actions/run-unit-tests
+        with:
+          minimum-coverage: ${{ env.COVERAGE_MINIMUM }}
+      - name: Report coverage
+        run: echo "Hadge.app line coverage: ${{ steps.unit_tests.outputs.coverage-percent }}% (minimum: ${{ env.COVERAGE_MINIMUM }}%)"
+      - name: Bump bundle version
+        run: ./.github/scripts/bump_version.sh
+      - name: Setup provisioning profile
+        env:
+          CERTIFICATE_GPG_KEY: ${{ secrets.CERTIFICATE_GPG_KEY }}
+        run: ./.github/scripts/decrypt_secrets.sh
       - name: Build project
         run: ./.github/scripts/build_app.sh
       - name: Exporting .ipa
@@ -44,8 +53,27 @@ jobs:
         with:
           name: Hadge.ipa
           path: ./build/Hadge.ipa
+      - name: Capture release metadata
+        id: release_meta
+        run: |
+          MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Hadge/Info.plist)
+          BUILD_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" Hadge/Info.plist)
+          COMMIT_SHA=$(git rev-parse HEAD)
+
+          echo "marketing_version=${MARKETING_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "build_version=${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=${COMMIT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=v${MARKETING_VERSION}-${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
       - name: Push changes
         uses: ad-m/github-push-action@v0.8.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: 'main'
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_meta.outputs.tag_name }}
+          target_commitish: ${{ steps.release_meta.outputs.commit_sha }}
+          name: Hadge ${{ steps.release_meta.outputs.marketing_version }} (${{ steps.release_meta.outputs.build_version }})
+          generate_release_notes: true
+          files: ./build/Hadge.ipa

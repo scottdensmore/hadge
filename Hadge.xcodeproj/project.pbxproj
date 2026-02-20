@@ -52,7 +52,26 @@
 		4DF685A12464D0EE00D929EC /* FilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DF685A02464D0EE00D929EC /* FilterViewController.swift */; };
 		4DF685A42465AEDC00D929EC /* FilterHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DF685A32465AEDC00D929EC /* FilterHeaderView.swift */; };
 		4DF685A62465B21F00D929EC /* FilterHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4DF685A52465B21F00D929EC /* FilterHeaderView.xib */; };
+		7F1A000124B0000000000001 /* StringDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1A000124B0000000000004 /* StringDateTests.swift */; };
+		7F1A000124B0000000000002 /* ConstantsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1A000124B0000000000005 /* ConstantsTests.swift */; };
+		7F1A000124B0000000000010 /* GitHubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1A000124B0000000000013 /* GitHubTests.swift */; };
+		7F1A000124B0000000000011 /* HealthExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1A000124B0000000000014 /* HealthExportTests.swift */; };
+		7F1A000124B0000000000012 /* SplitsDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1A000124B0000000000015 /* SplitsDataSourceTests.swift */; };
+		7F1A000124B0000000000016 /* WorkoutActivityTypeExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1A000124B0000000000019 /* WorkoutActivityTypeExtensionTests.swift */; };
+		7F1A000124B0000000000017 /* DistanceDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1A000124B000000000001A /* DistanceDataSourceTests.swift */; };
+		7F1A000124B0000000000018 /* HealthLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1A000124B000000000001B /* HealthLogicTests.swift */; };
+		7F2B000124B0000000000001 /* WorkoutsViewController+Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F2B000124B0000000000002 /* WorkoutsViewController+Data.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7F1A000124B000000000000C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DB3F66C2453F7AC004C8BF3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4DB3F6732453F7AC004C8BF3;
+			remoteInfo = Hadge;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		4D280C142479930100D9162E /* WorkoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutViewController.swift; sourceTree = "<group>"; };
@@ -99,6 +118,16 @@
 		4DF685A02464D0EE00D929EC /* FilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewController.swift; sourceTree = "<group>"; };
 		4DF685A32465AEDC00D929EC /* FilterHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterHeaderView.swift; sourceTree = "<group>"; };
 		4DF685A52465B21F00D929EC /* FilterHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FilterHeaderView.xib; sourceTree = "<group>"; };
+		7F1A000124B0000000000003 /* HadgeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HadgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7F1A000124B0000000000004 /* StringDateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringDateTests.swift; sourceTree = "<group>"; };
+		7F1A000124B0000000000005 /* ConstantsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsTests.swift; sourceTree = "<group>"; };
+		7F1A000124B0000000000013 /* GitHubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubTests.swift; sourceTree = "<group>"; };
+		7F1A000124B0000000000014 /* HealthExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthExportTests.swift; sourceTree = "<group>"; };
+		7F1A000124B0000000000015 /* SplitsDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitsDataSourceTests.swift; sourceTree = "<group>"; };
+		7F1A000124B0000000000019 /* WorkoutActivityTypeExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutActivityTypeExtensionTests.swift; sourceTree = "<group>"; };
+		7F1A000124B000000000001A /* DistanceDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceDataSourceTests.swift; sourceTree = "<group>"; };
+		7F1A000124B000000000001B /* HealthLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthLogicTests.swift; sourceTree = "<group>"; };
+		7F2B000124B0000000000002 /* WorkoutsViewController+Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WorkoutsViewController+Data.swift"; sourceTree = "<group>"; };
 		DE5A8AC22739D9930048B9A0 /* HadgeConfig.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = HadgeConfig.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -114,6 +143,13 @@
 				4DAE94C0246B7B230036AC72 /* SwiftDate in Frameworks */,
 				4DEA77F8245484B500554793 /* KeychainAccess in Frameworks */,
 				4DD70CBE245DBD98007C8D58 /* SDWebImage in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7F1A000124B0000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,6 +182,7 @@
 				4DCEDB072462736C00510195 /* SetupPageViewController.swift */,
 				4D563CF1246379230034D2CF /* SetupViewController.swift */,
 				4DB3F67B2453F7AC004C8BF3 /* WorkoutsViewController.swift */,
+				7F2B000124B0000000000002 /* WorkoutsViewController+Data.swift */,
 				4D280C142479930100D9162E /* WorkoutViewController.swift */,
 			);
 			path = Controllers;
@@ -207,6 +244,7 @@
 			isa = PBXGroup;
 			children = (
 				4DB3F6762453F7AC004C8BF3 /* Hadge */,
+				7F1A000124B0000000000006 /* HadgeTests */,
 				4DB3F6752453F7AC004C8BF3 /* Products */,
 				4DB3F68C2453F7CF004C8BF3 /* Frameworks */,
 			);
@@ -216,6 +254,7 @@
 			isa = PBXGroup;
 			children = (
 				4DB3F6742453F7AC004C8BF3 /* Hadge.app */,
+				7F1A000124B0000000000003 /* HadgeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -241,6 +280,21 @@
 				4DB3F68D2453F7CF004C8BF3 /* HealthKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7F1A000124B0000000000006 /* HadgeTests */ = {
+			isa = PBXGroup;
+			children = (
+				7F1A000124B0000000000005 /* ConstantsTests.swift */,
+				7F1A000124B000000000001A /* DistanceDataSourceTests.swift */,
+				7F1A000124B0000000000013 /* GitHubTests.swift */,
+				7F1A000124B0000000000014 /* HealthExportTests.swift */,
+				7F1A000124B000000000001B /* HealthLogicTests.swift */,
+				7F1A000124B0000000000015 /* SplitsDataSourceTests.swift */,
+				7F1A000124B0000000000004 /* StringDateTests.swift */,
+				7F1A000124B0000000000019 /* WorkoutActivityTypeExtensionTests.swift */,
+			);
+			path = HadgeTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -273,6 +327,24 @@
 			productReference = 4DB3F6742453F7AC004C8BF3 /* Hadge.app */;
 			productType = "com.apple.product-type.application";
 		};
+		7F1A000124B000000000000A /* HadgeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7F1A000124B000000000000F /* Build configuration list for PBXNativeTarget "HadgeTests" */;
+			buildPhases = (
+				7F1A000124B0000000000007 /* Sources */,
+				7F1A000124B0000000000008 /* Frameworks */,
+				7F1A000124B0000000000009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7F1A000124B000000000000B /* PBXTargetDependency */,
+			);
+			name = HadgeTests;
+			productName = HadgeTests;
+			productReference = 7F1A000124B0000000000003 /* HadgeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -285,6 +357,10 @@
 				TargetAttributes = {
 					4DB3F6732453F7AC004C8BF3 = {
 						CreatedOnToolsVersion = 11.4.1;
+					};
+					7F1A000124B000000000000A = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 4DB3F6732453F7AC004C8BF3;
 					};
 				};
 			};
@@ -310,6 +386,7 @@
 			projectRoot = "";
 			targets = (
 				4DB3F6732453F7AC004C8BF3 /* Hadge */,
+				7F1A000124B000000000000A /* HadgeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -324,6 +401,13 @@
 				4DB3F6812453F7B0004C8BF3 /* Assets.xcassets in Resources */,
 				4DF685A62465B21F00D929EC /* FilterHeaderView.xib in Resources */,
 				4DB3F67F2453F7AC004C8BF3 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7F1A000124B0000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -387,6 +471,7 @@
 				4D563CF2246379230034D2CF /* SetupViewController.swift in Sources */,
 				4D280C152479930100D9162E /* WorkoutViewController.swift in Sources */,
 				4DB3F67C2453F7AC004C8BF3 /* WorkoutsViewController.swift in Sources */,
+				7F2B000124B0000000000001 /* WorkoutsViewController+Data.swift in Sources */,
 				4DF685A12464D0EE00D929EC /* FilterViewController.swift in Sources */,
 				4D3DFA3C2470337200EDCBEC /* SettingsAboutHelper.swift in Sources */,
 				4DB3F6782453F7AC004C8BF3 /* AppDelegate.swift in Sources */,
@@ -409,7 +494,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7F1A000124B0000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F1A000124B0000000000002 /* ConstantsTests.swift in Sources */,
+				7F1A000124B0000000000010 /* GitHubTests.swift in Sources */,
+				7F1A000124B0000000000011 /* HealthExportTests.swift in Sources */,
+				7F1A000124B0000000000018 /* HealthLogicTests.swift in Sources */,
+				7F1A000124B0000000000012 /* SplitsDataSourceTests.swift in Sources */,
+				7F1A000124B0000000000001 /* StringDateTests.swift in Sources */,
+				7F1A000124B0000000000017 /* DistanceDataSourceTests.swift in Sources */,
+				7F1A000124B0000000000016 /* WorkoutActivityTypeExtensionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7F1A000124B000000000000B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4DB3F6732453F7AC004C8BF3 /* Hadge */;
+			targetProxy = 7F1A000124B000000000000C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		4DB3F67D2453F7AC004C8BF3 /* Main.storyboard */ = {
@@ -467,6 +575,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 27ZDER873F;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -529,6 +638,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 27ZDER873F;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -589,6 +699,48 @@
 			};
 			name = Release;
 		};
+		7F1A000124B000000000000D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DE5A8AC22739D9930048B9A0 /* HadgeConfig.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(ORGANIZATION_IDENTIFIER).hadgeTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hadge.app/Hadge";
+			};
+			name = Debug;
+		};
+		7F1A000124B000000000000E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DE5A8AC22739D9930048B9A0 /* HadgeConfig.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(ORGANIZATION_IDENTIFIER).hadgeTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hadge.app/Hadge";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -606,6 +758,15 @@
 			buildConfigurations = (
 				4DB3F6892453F7B0004C8BF3 /* Debug */,
 				4DB3F68A2453F7B0004C8BF3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7F1A000124B000000000000F /* Build configuration list for PBXNativeTarget "HadgeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7F1A000124B000000000000D /* Debug */,
+				7F1A000124B000000000000E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
