@@ -37,7 +37,7 @@ jobs:
         with:
           minimum-coverage: ${{ env.COVERAGE_MINIMUM }}
       - name: Report coverage
-        run: echo "Hadge.app line coverage: ${{ steps.unit_tests.outputs.coverage-percent }}% (minimum: ${{ env.COVERAGE_MINIMUM }}%)"
+        run: echo "Hadge.app line coverage: ${{ steps.unit_tests.outputs.coverage_percent }}% (minimum: ${{ env.COVERAGE_MINIMUM }}%)"
       - name: Bump bundle version
         run: ./.github/scripts/bump_version.sh
       - name: Setup provisioning profile

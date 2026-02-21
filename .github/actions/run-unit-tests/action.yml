@@ -6,9 +6,9 @@ inputs:
     required: false
     default: "20.0"
 outputs:
-  coverage-percent:
+  coverage_percent:
     description: "Measured line coverage percentage for Hadge.app"
-    value: ${{ steps.run-tests.outputs.coverage-percent }}
+    value: ${{ steps.run-tests.outputs.coverage_percent }}
 runs:
   using: "composite"
   steps:
@@ -47,7 +47,7 @@ runs:
           exit 1
         fi
 
-        echo "coverage-percent=${COVERAGE_PERCENT}" >> "$GITHUB_OUTPUT"
+        echo "coverage_percent=${COVERAGE_PERCENT}" >> "$GITHUB_OUTPUT"
 
         MINIMUM_COVERAGE="${{ inputs.minimum-coverage }}"
         if awk -v coverage="$COVERAGE_PERCENT" -v minimum="$MINIMUM_COVERAGE" 'BEGIN { exit (coverage + 0 >= minimum + 0) ? 0 : 1 }'; then
