@@ -1,0 +1,45 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lint_and_test:
+    name: Lint And Test
+    runs-on: macos-latest
+    env:
+      COVERAGE_MINIMUM: "20.0"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set Xcode version
+        uses: ./.github/actions/set-xcode-version
+      - name: Install sourcery
+        run: brew install sourcery
+      - name: Install swiftlint
+        run: brew install swiftlint
+      - name: Create secrets xcconfig
+        run: |
+          echo 'GITHUB_CLIENT_ID = "Iv1.ci"' > Hadge/Secrets.xcconfig
+          echo 'GITHUB_CLIENT_SECRET = "ci-secret"' >> Hadge/Secrets.xcconfig
+      - name: Run lint
+        run: make lint
+      - name: Run unit tests
+        id: unit_tests
+        uses: ./.github/actions/run-unit-tests
+        with:
+          minimum_coverage: ${{ env.COVERAGE_MINIMUM }}
+      - name: Report coverage
+        run: |
+          echo "Hadge.app line coverage: ${{ steps.unit_tests.outputs.coverage_percent }}% (minimum: ${{ env.COVERAGE_MINIMUM }}%)"

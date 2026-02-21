@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -22,6 +25,7 @@ jobs:
       - name: Set Xcode version
         uses: ./.github/actions/set-xcode-version
       - name: Install gpg
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         run: brew install gnupg
       - name: Install sourcery
         run: brew install sourcery
@@ -32,7 +36,7 @@ jobs:
           OCTO_CLIENT_ID: ${{ secrets.OCTO_CLIENT_ID }}
           OCTO_CLIENT_SECRET: ${{ secrets.OCTO_CLIENT_SECRET }}
         run: |
-          echo "GITHUB_CLIENT_ID = \"${OCTO_CLIENT_ID}\"" >> Hadge/Secrets.xcconfig
+          echo "GITHUB_CLIENT_ID = \"${OCTO_CLIENT_ID}\"" > Hadge/Secrets.xcconfig
           echo "GITHUB_CLIENT_SECRET = \"${OCTO_CLIENT_SECRET}\"" >> Hadge/Secrets.xcconfig
       - name: Run unit tests
         id: unit_tests
@@ -43,30 +47,30 @@ jobs:
         run: |
           echo "Hadge.app line coverage: ${{ steps.unit_tests.outputs.coverage_percent }}% (minimum: ${{ env.COVERAGE_MINIMUM }}%)"
       - name: Release prerequisites check
-        if: ${{ env.HAS_CERTIFICATE_GPG_KEY != 'true' }}
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY != 'true' }}
         run: echo "CERTIFICATE_GPG_KEY is not set; skipping signed build and release steps."
       - name: Bump bundle version
-        if: ${{ env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         run: ./.github/scripts/bump_version.sh
       - name: Setup provisioning profile
-        if: ${{ env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         env:
           CERTIFICATE_GPG_KEY: ${{ secrets.CERTIFICATE_GPG_KEY }}
         run: ./.github/scripts/decrypt_secrets.sh
       - name: Build project
-        if: ${{ env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         run: ./.github/scripts/build_app.sh
       - name: Exporting .ipa
-        if: ${{ env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         run: ./.github/scripts/export_ipa.sh
       - name: Save .ipa as artifact
-        if: ${{ env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: Hadge.ipa
           path: ./build/Hadge.ipa
       - name: Capture release metadata
-        if: ${{ env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         id: release_meta
         run: |
           MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Hadge/Info.plist)
@@ -78,13 +82,13 @@ jobs:
           echo "commit_sha=${COMMIT_SHA}" >> "$GITHUB_OUTPUT"
           echo "tag_name=v${MARKETING_VERSION}-${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
       - name: Push changes
-        if: ${{ env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         uses: ad-m/github-push-action@v0.8.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: 'main'
       - name: Create GitHub release
-        if: ${{ env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
+        if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_meta.outputs.tag_name }}

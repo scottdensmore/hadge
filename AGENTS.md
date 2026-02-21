@@ -7,7 +7,10 @@ Agent-focused guide for working in this repository.
 - Xcode project: `Hadge.xcodeproj`
 - App source: `Hadge/`
 - Tests: `HadgeTests/`
-- CI workflow: `.github/workflows/build_app.yml`
+- CI workflows:
+  - `.github/workflows/ci_pr.yml` (PR lint/test)
+  - `.github/workflows/build_app.yml` (push build/release path)
+  - `.github/workflows/secret_scan.yml` (secret scanning)
 
 ## Tooling
 - Xcode 16+ and iOS Simulator tooling (`xcodebuild`, `xcrun`)
