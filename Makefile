@@ -2,8 +2,9 @@ SHELL := /bin/bash
 
 PROJECT := Hadge.xcodeproj/
 SCHEME := Hadge
+BASE ?= main
 
-.PHONY: help setup setup-non-interactive hooks doctor lint test ci-local build ipa
+.PHONY: help setup setup-non-interactive hooks doctor lint test ci-local build ipa pr-open pr-status
 
 help:
 	@echo "Available targets:"
@@ -16,6 +17,8 @@ help:
 	@echo "  make ci-local                 # local CI subset (lint + test)"
 	@echo "  make build                    # archive build"
 	@echo "  make ipa                      # export IPA from archive"
+	@echo "  make pr-open                  # create PR with gh (uses BASE=main by default)"
+	@echo "  make pr-status                # show PR status via gh"
 
 setup:
 	./setup.sh
@@ -53,3 +56,9 @@ build:
 
 ipa:
 	./.github/scripts/export_ipa.sh
+
+pr-open:
+	gh pr create --base "$(BASE)" --fill
+
+pr-status:
+	gh pr status

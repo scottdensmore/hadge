@@ -10,6 +10,9 @@
 - Enable hooks once per clone: `git config core.hooksPath .githooks`
 - Use project entrypoints: `make help`
 - Run environment checks: `make doctor`
+- Review architecture and release docs:
+  - `docs/ARCHITECTURE.md`
+  - `docs/RELEASE.md`
 
 ## Validation Before PR
 - Run `make lint`
@@ -35,3 +38,6 @@
   - `gh pr status`
   - `gh run list`
   - `gh run view --log`
+- Make helpers:
+  - `make pr-open`
+  - `make pr-status`

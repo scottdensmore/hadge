@@ -11,9 +11,11 @@ At the first launch of the app, you can connect your GitHub account, then the ap
 
 See `AGENTS.md` for project-specific setup, test/build commands, and workflow conventions.
 See `CONTRIBUTING.md` for PR workflow, required checks, and contribution policy.
+See `docs/ARCHITECTURE.md` and `docs/RELEASE.md` for system and release runbooks.
 After cloning, enable repository hooks with `git config core.hooksPath .githooks` to block accidental secret commits.
 Use `make help` for standardized setup/lint/test/build entrypoints.
 Use `make doctor` for a quick environment and tooling readiness check.
+Use `make pr-open` / `make pr-status` for `gh`-based PR workflows.
 
 ## TestFlight Beta
 

@@ -3,6 +3,9 @@
 Agent-focused guide for working in this repository.
 
 For repository-wide contribution policy (PR flow and required checks), see `CONTRIBUTING.md`.
+System context and release process docs live in:
+- `docs/ARCHITECTURE.md`
+- `docs/RELEASE.md`
 
 ## Project Snapshot
 - App: `Hadge` (iOS, UIKit, Swift)
@@ -13,6 +16,7 @@ For repository-wide contribution policy (PR flow and required checks), see `CONT
   - `.github/workflows/ci_pr.yml` (PR lint/test)
   - `.github/workflows/build_app.yml` (push build/release path)
   - `.github/workflows/secret_scan.yml` (secret scanning)
+  - `.github/workflows/secret_scan_history.yml` (scheduled full-history secret scanning)
 
 ## Tooling
 - Xcode 16+ and iOS Simulator tooling (`xcodebuild`, `xcrun`)
@@ -85,6 +89,13 @@ Build archive (release-oriented):
 
 ```bash
 make build
+```
+
+GitHub PR helpers:
+
+```bash
+make pr-open
+make pr-status
 ```
 
 ## GitHub Workflow Rule
