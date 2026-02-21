@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -z "${REPO_ROOT}" ]; then
+  exit 0
+fi
+
+cd "${REPO_ROOT}"
+
+BLOCKED_FILES=(
+  "DeveloperSettings.xcconfig"
+  "Hadge/Secrets.xcconfig"
+  "Hadge/Generated/Secrets.generated.swift"
+)
+
+STAGED_FILES="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+for file in "${BLOCKED_FILES[@]}"; do
+  if printf '%s\n' "${STAGED_FILES}" | grep -Fxq "${file}"; then
+    echo "error: refusing to commit sensitive file: ${file}" >&2
+    echo "hint: unstage it with: git reset HEAD -- \"${file}\"" >&2
+    exit 1
+  fi
+done
+
+# Scan only added lines from the staged diff to reduce false positives.
+ADDED_LINES="$(git diff --cached --unified=0 --no-color | grep '^+' | grep -v '^+++ ' || true)"
+
+if [ -z "${ADDED_LINES}" ]; then
+  exit 0
+fi
+
+SECRET_PATTERNS=(
+  'GITHUB_CLIENT_SECRET[[:space:]]*=[[:space:]]*"[A-Za-z0-9_=-]{20,}"'
+  'GITHUB_CLIENT_ID[[:space:]]*=[[:space:]]*"(Ov23|Iv1)[A-Za-z0-9_]{8,}"'
+  'gitHubClientSecret[[:space:]]*=[[:space:]]*"[A-Za-z0-9_=-]{20,}"'
+  'gitHubClientId[[:space:]]*=[[:space:]]*"(Ov23|Iv1)[A-Za-z0-9_]{8,}"'
+  '(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{20,}'
+  'github_pat_[A-Za-z0-9_]{20,}'
+)
+
+for pattern in "${SECRET_PATTERNS[@]}"; do
+  if printf '%s\n' "${ADDED_LINES}" | grep -Eiq "${pattern}"; then
+    echo "error: possible secret detected in staged changes." >&2
+    echo "pattern: ${pattern}" >&2
+    echo "hint: store credentials in local xcconfig files or GitHub Actions secrets." >&2
+    exit 1
+  fi
+done
+
+exit 0

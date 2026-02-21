@@ -1,0 +1,24 @@
+title = "Hadge gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "hadge-github-client-secret"
+description = "GitHub OAuth client secret assigned in xcconfig or generated Swift"
+regex = '''(?i)(GITHUB_CLIENT_SECRET\s*=\s*"[^"<\s][^"]{19,}"|gitHubClientSecret\s*=\s*"[^"<\s][^"]{19,}")'''
+keywords = ["GITHUB_CLIENT_SECRET", "gitHubClientSecret"]
+
+[[rules]]
+id = "hadge-github-client-id"
+description = "GitHub OAuth client id assigned in xcconfig or generated Swift"
+regex = '''(?i)(GITHUB_CLIENT_ID\s*=\s*"(Ov23|Iv1)[A-Za-z0-9_]{8,}"|gitHubClientId\s*=\s*"(Ov23|Iv1)[A-Za-z0-9_]{8,}")'''
+keywords = ["GITHUB_CLIENT_ID", "gitHubClientId"]
+
+[[allowlists]]
+description = "Allow placeholder strings used in templates and docs"
+regexes = [
+  '''<Your GitHub App Client ID>''',
+  '''<Your GitHub App Client Secret>''',
+  '''<INSERT>''',
+]
