@@ -35,7 +35,7 @@ jobs:
         id: unit_tests
         uses: ./.github/actions/run-unit-tests
         with:
-          minimum-coverage: ${{ env.COVERAGE_MINIMUM }}
+          minimum_coverage: ${{ env.COVERAGE_MINIMUM }}
       - name: Report coverage
         run: echo "Hadge.app line coverage: ${{ steps.unit_tests.outputs.coverage_percent }}% (minimum: ${{ env.COVERAGE_MINIMUM }}%)"
       - name: Bump bundle version

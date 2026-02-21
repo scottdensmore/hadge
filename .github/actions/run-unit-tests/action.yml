@@ -1,19 +1,19 @@
 name: "Run Unit Tests"
 description: "Runs iOS unit tests on an available iPhone simulator"
 inputs:
-  minimum-coverage:
+  minimum_coverage:
     description: "Minimum line coverage percentage required for the Hadge.app target"
     required: false
     default: "20.0"
 outputs:
   coverage_percent:
     description: "Measured line coverage percentage for Hadge.app"
-    value: ${{ steps.run-tests.outputs.coverage_percent }}
+    value: ${{ steps.run_tests.outputs.coverage_percent }}
 runs:
   using: "composite"
   steps:
     - name: Select simulator and run tests
-      id: run-tests
+      id: run_tests
       shell: bash
       run: |
         set -eo pipefail
@@ -49,7 +49,7 @@ runs:
 
         echo "coverage_percent=${COVERAGE_PERCENT}" >> "$GITHUB_OUTPUT"
 
-        MINIMUM_COVERAGE="${{ inputs.minimum-coverage }}"
+        MINIMUM_COVERAGE="${{ inputs.minimum_coverage }}"
         if awk -v coverage="$COVERAGE_PERCENT" -v minimum="$MINIMUM_COVERAGE" 'BEGIN { exit (coverage + 0 >= minimum + 0) ? 0 : 1 }'; then
           echo "Coverage gate passed: ${COVERAGE_PERCENT}% >= ${MINIMUM_COVERAGE}%"
         else
