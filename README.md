@@ -13,6 +13,7 @@ See `AGENTS.md` for project-specific setup, test/build commands, and workflow co
 See `CONTRIBUTING.md` for PR workflow, required checks, and contribution policy.
 After cloning, enable repository hooks with `git config core.hooksPath .githooks` to block accidental secret commits.
 Use `make help` for standardized setup/lint/test/build entrypoints.
+Use `make doctor` for a quick environment and tooling readiness check.
 
 ## TestFlight Beta
 

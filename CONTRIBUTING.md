@@ -9,6 +9,7 @@
 - Install dependencies: `brew bundle`
 - Enable hooks once per clone: `git config core.hooksPath .githooks`
 - Use project entrypoints: `make help`
+- Run environment checks: `make doctor`
 
 ## Validation Before PR
 - Run `make lint`
@@ -20,6 +21,7 @@
 
 ## Pull Requests
 - Fill out `.github/pull_request_template.md`.
+- Use issue templates from `.github/ISSUE_TEMPLATE/` for new bug/feature issues.
 - Ensure required checks are green:
   - `build`
   - `Lint And Test`

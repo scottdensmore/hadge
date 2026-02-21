@@ -3,13 +3,14 @@ SHELL := /bin/bash
 PROJECT := Hadge.xcodeproj/
 SCHEME := Hadge
 
-.PHONY: help setup setup-non-interactive hooks lint test ci-local build ipa
+.PHONY: help setup setup-non-interactive hooks doctor lint test ci-local build ipa
 
 help:
 	@echo "Available targets:"
 	@echo "  make setup                    # interactive local setup"
 	@echo "  make setup-non-interactive    # setup using env vars/flags (see setup.sh --help)"
 	@echo "  make hooks                    # enable repo-managed hooks"
+	@echo "  make doctor                   # run local environment checks"
 	@echo "  make lint                     # run SwiftLint"
 	@echo "  make test                     # run unit tests on first available iPhone simulator"
 	@echo "  make ci-local                 # local CI subset (lint + test)"
@@ -24,6 +25,9 @@ setup-non-interactive:
 
 hooks:
 	git config core.hooksPath .githooks
+
+doctor:
+	./scripts/doctor.sh
 
 lint:
 	swiftlint

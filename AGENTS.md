@@ -30,6 +30,7 @@ Use repo entrypoints where possible:
 
 ```bash
 make help
+make doctor
 ```
 
 ## Setup
@@ -62,6 +63,12 @@ git config core.hooksPath .githooks
 ```
 
 ## Common Commands
+Run environment diagnostics:
+
+```bash
+make doctor
+```
+
 Run lint:
 
 ```bash

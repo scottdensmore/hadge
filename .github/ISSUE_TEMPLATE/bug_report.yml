@@ -1,0 +1,62 @@
+name: Bug Report
+description: Report a reproducible bug with clear validation details.
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is wrong?
+      placeholder: Concise description of the observed bug.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction Steps
+      description: Provide deterministic steps so an agent can reproduce.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Impact And Scope
+      description: Which areas are affected (feature, files, severity)?
+      placeholder: "Example: Settings screen only, regression from commit <sha>, blocks release."
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include app version, device/simulator, iOS version, and Xcode version.
+      placeholder: Hadge x.y.z, iPhone 15 simulator, iOS 18.2, Xcode 16.x
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs Or Evidence
+      description: Paste logs, screenshots, or links that confirm the issue.
+    validations:
+      required: false
