@@ -24,6 +24,8 @@ jobs:
         run: brew install gnupg
       - name: Install sourcery
         run: brew install sourcery
+      - name: Install swiftlint
+        run: brew install swiftlint
       - name: Create secrets xcconfig
         env:
           OCTO_CLIENT_ID: ${{ secrets.OCTO_CLIENT_ID }}
