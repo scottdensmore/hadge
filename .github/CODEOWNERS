@@ -1,0 +1,5 @@
+# Sensitive automation and policy files require repository owner review.
+/.github/workflows/* @scottdensmore
+/.githooks/* @scottdensmore
+/.gitleaks.toml @scottdensmore
+/AGENTS.md @scottdensmore

@@ -10,6 +10,7 @@ At the first launch of the app, you can connect your GitHub account, then the ap
 ## For Coding Agents
 
 See `AGENTS.md` for project-specific setup, test/build commands, and workflow conventions.
+See `CONTRIBUTING.md` for PR workflow, required checks, and contribution policy.
 After cloning, enable repository hooks with `git config core.hooksPath .githooks` to block accidental secret commits.
 Use `make help` for standardized setup/lint/test/build entrypoints.
 

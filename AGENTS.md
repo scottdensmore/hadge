@@ -2,6 +2,8 @@
 
 Agent-focused guide for working in this repository.
 
+For repository-wide contribution policy (PR flow and required checks), see `CONTRIBUTING.md`.
+
 ## Project Snapshot
 - App: `Hadge` (iOS, UIKit, Swift)
 - Xcode project: `Hadge.xcodeproj`
