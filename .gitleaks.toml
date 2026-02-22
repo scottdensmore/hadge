@@ -16,15 +16,9 @@ regex = '''(?i)(GITHUB_CLIENT_ID\s*=\s*"(Ov23|Iv1)[A-Za-z0-9_]{8,}"|gitHubClient
 keywords = ["GITHUB_CLIENT_ID", "gitHubClientId"]
 
 [allowlist]
-description = "Global allowlist for placeholders and temporary historical exceptions"
+description = "Global allowlist for placeholders used in templates and docs"
 regexes = [
   '''<Your GitHub App Client ID>''',
   '''<Your GitHub App Client Secret>''',
   '''<INSERT>''',
-]
-commits = [
-  '''4a1414f3736b964f0ebd6df2b7b03adb733b9418''',
-]
-paths = [
-  '''^Hadge/GitHub\.swift$''',
 ]
