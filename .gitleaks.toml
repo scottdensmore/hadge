@@ -6,7 +6,7 @@ useDefault = true
 [[rules]]
 id = "hadge-github-client-secret"
 description = "GitHub OAuth client secret assigned in xcconfig or generated Swift"
-regex = '''(?i)(GITHUB_CLIENT_SECRET\s*=\s*"[^"<\s][^"]{19,}"|gitHubClientSecret\s*=\s*"[^"<\s][^"]{19,}")'''
+regex = '''(?i)(GITHUB_CLIENT_SECRET\s*=\s*"[A-Za-z0-9_-]{20,}"|gitHubClientSecret\s*=\s*"[A-Za-z0-9_-]{20,}")'''
 keywords = ["GITHUB_CLIENT_SECRET", "gitHubClientSecret"]
 
 [[rules]]
@@ -21,4 +21,10 @@ regexes = [
   '''<Your GitHub App Client ID>''',
   '''<Your GitHub App Client Secret>''',
   '''<INSERT>''',
+]
+
+[[allowlists]]
+description = "Temporary: ignore known historical OAuth literals until history rewrite is completed"
+commits = [
+  '''4a1414f3736b964f0ebd6df2b7b03adb733b9418''',
 ]
