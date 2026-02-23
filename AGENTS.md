@@ -101,6 +101,7 @@ make pr-status
 ## GitHub Workflow Rule
 - For any GitHub task (PRs, issues, workflow runs, releases, labels, comments), use the GitHub CLI (`gh`) when it is available.
 - Only fall back to web UI or direct API calls when `gh` is unavailable or missing required functionality.
+- All changes must be delivered via pull request; do not push directly to `main`.
 
 ## Change Guidelines
 - Keep changes scoped; avoid unrelated refactors.
