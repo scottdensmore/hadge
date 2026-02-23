@@ -1,0 +1,81 @@
+name: Task
+description: Track a scoped engineering task with clear completion criteria.
+title: "[Task] "
+labels:
+  - task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for implementation, maintenance, or refactoring work that is not a bug or feature request.
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What outcome should this task achieve?
+      placeholder: Concise statement of the task goal.
+    validations:
+      required: true
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task Type
+      options:
+        - Implementation
+        - Refactor
+        - Maintenance
+        - Tooling/CI
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: In Scope
+      description: What should be changed as part of this task?
+      placeholder: List components, files, or behaviors expected to change.
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out Of Scope
+      description: What should explicitly not be changed?
+      placeholder: Optional boundaries to avoid scope creep.
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Definition Of Done
+      description: List testable, reviewable completion criteria.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Any blockers, prerequisite issues, or external dependencies?
+      placeholder: Link related issues/PRs or write "None".
+    validations:
+      required: false
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation Plan
+      description: How should this task be validated (tests, manual checks, environments)?
+      placeholder: "Example: Run make lint and make test, then verify settings flow on iOS simulator."
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-Submission Checklist
+      options:
+        - label: I searched existing issues for overlapping work.
+          required: true
+        - label: I included concrete completion criteria.
+          required: true
