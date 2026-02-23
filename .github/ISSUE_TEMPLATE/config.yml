@@ -3,3 +3,6 @@ contact_links:
   - name: Contributor Guide
     url: https://github.com/scottdensmore/hadge/blob/main/CONTRIBUTING.md
     about: Read contribution workflow and required checks before filing.
+  - name: Architecture Notes
+    url: https://github.com/scottdensmore/hadge/blob/main/docs/ARCHITECTURE.md
+    about: Review system context and architecture before proposing larger changes.
