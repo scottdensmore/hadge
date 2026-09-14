@@ -1,2 +1,1 @@
 "swiftlint"
-"sourcery"

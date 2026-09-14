@@ -27,8 +27,6 @@ jobs:
       - name: Install gpg
         if: ${{ github.event_name == 'push' && env.HAS_CERTIFICATE_GPG_KEY == 'true' }}
         run: brew install gnupg
-      - name: Install sourcery
-        run: brew install sourcery
       - name: Install swiftlint
         run: brew install swiftlint
       - name: Create secrets xcconfig
