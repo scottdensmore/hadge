@@ -6,10 +6,9 @@ This app serves one simple purpose: Exporting workout data from the Health.app o
 
 At the first launch of the app, you can connect your GitHub account, then the app checks whether a repo with the name `health` exists and, if not, it automatically creates it as a private repo. The initial export dumps all workouts, distances, and daily activity data (the rings on Apple Watch) to .csv files, one per year. The app also registers a background task that gets activated whenever you finish a new workout and then updates the .csv files. 
 
-## For Coding Agents
+## Development
 
-See `AGENTS.md` for project-specific setup, test/build commands, and workflow conventions.
-See `CONTRIBUTING.md` for PR workflow, required checks, and contribution policy.
+See `CONTRIBUTING.md` for PR workflow and contribution policy.
 See `docs/ARCHITECTURE.md` and `docs/RELEASE.md` for system and release runbooks.
 After cloning, enable repository hooks with `git config core.hooksPath .githooks` to block accidental secret commits.
 Use `make help` for standardized setup/lint/test/build entrypoints.
