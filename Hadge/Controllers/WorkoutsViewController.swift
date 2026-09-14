@@ -194,7 +194,7 @@ extension WorkoutsViewController {
         if lastSyncDate != nil && data.count > 0 {
             updateStatusLabel("GitHub last updated on\n\(formatter.string(from: lastSyncDate!)).")
         } else {
-            updateStatusLabel("")
+            updateStatusLabel("No update yet.")
         }
     }
 
@@ -266,15 +266,35 @@ extension WorkoutsViewController {
     }
 
     func loadStatusView() {
-        statusLabel = UILabel(frame: CGRect.init(x: 0, y: 0, width: 200, height: 34))
-        statusLabel?.text = ""
-        statusLabel?.textAlignment = NSTextAlignment.center
+        statusLabel = PaddingLabel()
+        statusLabel?.translatesAutoresizingMaskIntoConstraints = false
+        statusLabel?.text = "No update yet."
+        statusLabel?.textAlignment = .center
         statusLabel?.textColor = UIColor.secondaryLabel
         statusLabel?.font = UIFont.preferredFont(forTextStyle: .footnote)
         statusLabel?.lineBreakMode = .byWordWrapping
         statusLabel?.numberOfLines = 2
+        statusLabel?.preferredMaxLayoutWidth = 300
 
-        let statusItem = UIBarButtonItem(customView: statusLabel!)
+        let statusContainer = UIView()
+        statusContainer.translatesAutoresizingMaskIntoConstraints = false
+        statusContainer.addSubview(statusLabel!)
+
+        NSLayoutConstraint.activate([
+            statusLabel!.leadingAnchor.constraint(equalTo: statusContainer.leadingAnchor, constant: 8),
+            statusLabel!.trailingAnchor.constraint(equalTo: statusContainer.trailingAnchor, constant: -8),
+            statusLabel!.topAnchor.constraint(equalTo: statusContainer.topAnchor),
+            statusLabel!.bottomAnchor.constraint(equalTo: statusContainer.bottomAnchor)
+        ])
+
+        let widthConstraint = statusContainer.widthAnchor.constraint(equalToConstant: 200)
+        widthConstraint.priority = .defaultLow
+        widthConstraint.isActive = true
+
+        let statusItem = UIBarButtonItem(customView: statusContainer)
+        statusItem.customView?.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        statusItem.customView?.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
         yearButton = UIBarButtonItem(title: "", style: .plain, target: self, action: #selector(showYearPicker(sender:)))
         filterButton = UIBarButtonItem(image: UIImage(systemName: "line.horizontal.3.decrease.circle"), style: .plain, target: self, action: #selector(showFilter(sender:)))
         filterButton?.tintColor = (self.filter.isEmpty ? UIColor.secondaryLabel : UIColor.systemBlue)
