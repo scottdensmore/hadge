@@ -25,8 +25,6 @@ jobs:
           fetch-depth: 0
       - name: Set Xcode version
         uses: ./.github/actions/set-xcode-version
-      - name: Install sourcery
-        run: brew install sourcery
       - name: Install swiftlint
         run: brew install swiftlint
       - name: Create secrets xcconfig

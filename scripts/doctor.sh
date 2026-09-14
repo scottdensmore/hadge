@@ -45,7 +45,6 @@ check_cmd xcodebuild required
 check_cmd xcrun required
 check_cmd brew optional
 check_cmd swiftlint optional
-check_cmd sourcery optional
 check_cmd gh optional
 
 if command -v xcodebuild >/dev/null 2>&1; then

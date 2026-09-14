@@ -22,7 +22,6 @@ System context and release process docs live in:
 - Xcode 16+ and iOS Simulator tooling (`xcodebuild`, `xcrun`)
 - Homebrew dependencies from `Brewfile`:
   - `swiftlint`
-  - `sourcery`
 
 Install dependencies:
 
@@ -58,7 +57,7 @@ GITHUB_CLIENT_SECRET=... \
 make setup-non-interactive
 ```
 
-`Hadge/Generated/Secrets.generated.swift` is generated from `Hadge/Helpers/Secrets.stencil` by a build phase (Sourcery). Do not edit generated files directly.
+`Hadge/Generated/Secrets.generated.swift` is generated from `scripts/generate_secrets.sh` by a build phase. Do not edit generated files directly.
 
 Enable repo-managed Git hooks (one-time per clone):
 

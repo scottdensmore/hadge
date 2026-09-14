@@ -26,7 +26,7 @@ Hadge is an iOS app that reads HealthKit workout/activity data and exports yearl
 Each CSV is generated in-app and upserted through GitHub API calls from `GitHub.updateFile(...)`.
 
 ## Security And Secrets
-- OAuth client values are sourced from `Hadge/Secrets.xcconfig` and injected via Sourcery template into generated code.
+- OAuth client values are sourced from `Hadge/Secrets.xcconfig` and injected via a build-phase generation script into generated code.
 - Local secret/config files are intentionally ignored by git and blocked by pre-commit hook.
 - CI secret scanning is enforced via gitleaks workflows.
 
