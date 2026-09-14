@@ -12,11 +12,6 @@ System context and release process docs live in:
 - Xcode project: `Hadge.xcodeproj`
 - App source: `Hadge/`
 - Tests: `HadgeTests/`
-- CI workflows:
-  - `.github/workflows/ci_pr.yml` (PR lint/test)
-  - `.github/workflows/build_app.yml` (push build/release path)
-  - `.github/workflows/secret_scan.yml` (secret scanning)
-  - `.github/workflows/secret_scan_history.yml` (scheduled full-history secret scanning)
 
 ## Tooling
 - Xcode 16+ and iOS Simulator tooling (`xcodebuild`, `xcrun`)
@@ -97,16 +92,17 @@ make pr-open
 make pr-status
 ```
 
-## GitHub Workflow Rule
-- For any GitHub task (PRs, issues, workflow runs, releases, labels, comments), use the GitHub CLI (`gh`) when it is available.
+## GitHub and Contribution Rules
+- For any GitHub task (PRs, issues, releases, labels, comments), use the GitHub CLI (`gh`) when it is available.
 - Only fall back to web UI or direct API calls when `gh` is unavailable or missing required functionality.
 - All changes must be delivered via pull request; do not push directly to `main`.
+- Pull requests must be squash merged to maintain a linear commit graph on `main`.
+- Coding agents must perform work directly and not invoke subagents or agent skills.
 
 ## Change Guidelines
 - Keep changes scoped; avoid unrelated refactors.
 - Add or update tests in `HadgeTests/` when behavior changes.
 - Keep secrets out of commits. Never hardcode credentials in Swift source.
 - The pre-commit hook blocks known secret files and obvious credential patterns in staged changes.
-- CI also runs `.github/workflows/secret_scan.yml` (gitleaks) on pushes and pull requests.
 - Repo-specific gitleaks rules live in `.gitleaks.toml`.
-- If you update CI scripts or workflow behavior, keep this file and `README.md` aligned.
+- Validate changes locally with `make lint` and `make test` before submitting pull requests.
