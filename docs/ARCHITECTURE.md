@@ -28,10 +28,4 @@ Each CSV is generated in-app and upserted through GitHub API calls from `GitHub.
 ## Security And Secrets
 - OAuth client values are sourced from `Hadge/Secrets.xcconfig` and injected via a build-phase generation script into generated code.
 - Local secret/config files are intentionally ignored by git and blocked by pre-commit hook.
-- CI secret scanning is enforced via gitleaks workflows.
-
-## CI Topology
-- PR validation: `.github/workflows/ci_pr.yml`
-- Main branch build/release path: `.github/workflows/build_app.yml`
-- Secret scanning (push/PR): `.github/workflows/secret_scan.yml`
-- Secret scanning (scheduled full history): `.github/workflows/secret_scan_history.yml`
+- Repo-level gitleaks configuration is defined in `.gitleaks.toml`.
