@@ -10,7 +10,8 @@ At the first launch of the app, you can connect your GitHub account, then the ap
 
 PRs and pushes to `main` run the existing `make lint` and `make test` entrypoints
 on a hosted Mac with preinstalled SwiftLint/Xcode, then compile an unsigned
-Simulator Release build. CI supplies no OAuth client credentials and does not
+Simulator Release build. CI writes the required ignored OAuth configuration with
+empty values, supplies no OAuth client credentials, and does not
 invoke setup, certificate decryption, archive, IPA export, or publishing scripts.
 Tests use synthetic HealthKit objects and mocked credential/transport/export
 implementations; live authorization, personal health data, and GitHub sync are

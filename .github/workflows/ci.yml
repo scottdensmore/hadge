@@ -39,6 +39,11 @@ jobs:
               exit 1
             fi
           done
+      - name: Provide empty local OAuth configuration for the test build
+        run: |
+          set -euo pipefail
+          test ! -e Hadge/Secrets.xcconfig
+          printf 'GITHUB_CLIENT_ID =\nGITHUB_CLIENT_SECRET =\n' > Hadge/Secrets.xcconfig
       - name: Run project lint entrypoint
         run: |
           set -euo pipefail
