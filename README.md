@@ -6,6 +6,17 @@ This app serves one simple purpose: Exporting workout data from the Health.app o
 
 At the first launch of the app, you can connect your GitHub account, then the app checks whether a repo with the name `health` exists and, if not, it automatically creates it as a private repo. The initial export dumps all workouts, distances, and daily activity data (the rings on Apple Watch) to .csv files, one per year. The app also registers a background task that gets activated whenever you finish a new workout and then updates the .csv files. 
 
+## Continuous integration
+
+PRs and pushes to `main` run the existing `make lint` and `make test` entrypoints
+on a hosted Mac with preinstalled SwiftLint/Xcode, then compile an unsigned
+Simulator Release build. CI supplies no OAuth client credentials and does not
+invoke setup, certificate decryption, archive, IPA export, or publishing scripts.
+Tests use synthetic HealthKit objects and mocked credential/transport/export
+implementations; live authorization, personal health data, and GitHub sync are
+outside this unit-test coverage. Only failure diagnostics are retained for three
+days. No local tool installation or signing-configuration change is required.
+
 ## Development
 
 See `CONTRIBUTING.md` for PR workflow and contribution policy.

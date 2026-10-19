@@ -1,0 +1,68 @@
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    name: SwiftLint and iOS unit tests
+    runs-on: macos-26
+    timeout-minutes: 20
+    env:
+      GITHUB_CLIENT_ID: ''
+      GITHUB_CLIENT_SECRET: ''
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Show existing toolchain
+        run: |
+          xcodebuild -version
+          swiftlint version
+      - name: Check local credential files are not tracked
+        run: |
+          set -euo pipefail
+          for path in DeveloperSettings.xcconfig Hadge/Secrets.xcconfig Hadge/Generated/Secrets.generated.swift; do
+            if git ls-files --error-unmatch "$path" >/dev/null 2>&1; then
+              echo "error: local credential file is tracked: $path"
+              exit 1
+            fi
+          done
+      - name: Run project lint entrypoint
+        run: |
+          set -euo pipefail
+          make lint 2>&1 | tee "$RUNNER_TEMP/hadge-lint.log"
+      - name: Run all existing unit tests on an available iPhone
+        run: |
+          set -euo pipefail
+          make test 2>&1 | tee "$RUNNER_TEMP/hadge-tests.log"
+      - name: Build unsigned Release for Simulator
+        run: |
+          set -euo pipefail
+          xcodebuild -project Hadge.xcodeproj -scheme Hadge -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/HadgeRelease" -jobs 2 \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+            build 2>&1 | tee "$RUNNER_TEMP/hadge-release.log"
+      - name: Verify tracked source was preserved
+        run: git diff --exit-code
+      - name: Retain failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: test-failure-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/hadge-*.log
+            ~/Library/Developer/Xcode/DerivedData/Hadge-*/Logs/Test/*.xcresult
+          retention-days: 3
